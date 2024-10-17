@@ -8,8 +8,8 @@ from detecting.video_rescaller import change_video_resolution
 # Параметры
 input_video = './rutube_d/Подборка уличных драк и разборок!!! за весь 2021 драки.mp4'
 output_video = './rescaled/Подборка уличных драк и разборок!!! за весь 2021 драки.mp4'
-new_width = 224  # Новый ширина
-new_height = 224  # Новый высота
+new_width = 224
+new_height = 224
 
 #change_video_resolution(input_video, output_video, new_width, new_height)
 
