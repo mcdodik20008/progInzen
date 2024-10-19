@@ -8,7 +8,7 @@ import os
 load_dotenv()
 log_vk = os.getenv('LOGIN_VK')
 passwd_vk = os.getenv('PASSW_VK')
-
+print(log_vk)
 # videoPath = rutube_downloader.download_rutube_video("https://rutube.ru/video/cbd82d6a3bf510fdc9b9a88aa740f9b3/")
 
 
