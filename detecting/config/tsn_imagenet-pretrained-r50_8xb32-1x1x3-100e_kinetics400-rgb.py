@@ -1,6 +1,6 @@
 _base_ = [
-    '../base/models/tsn_r50.py', '../base/schedules/sgd_100e.py',
-    '../base/default_runtime.py'
+    './base/models/tsn_r50.py', './base/schedules/sgd_100e.py',
+    './base/default_runtime.py'
 ]
 
 # dataset settings
