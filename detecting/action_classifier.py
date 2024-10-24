@@ -5,7 +5,7 @@ from mmaction.apis import init_recognizer, inference_recognizer
 
 def detect_aggressive_actions(video_path, result_path = './results'):
     # Параметры конфигурации модели
-    config_file = './config/tsn_imagenet-pretrained-r50_8xb32-1x1x3-100e_kinetics400-rgb.py'
+    config_file = './detecting/config/tsn_imagenet-pretrained-r50_8xb32-1x1x3-100e_kinetics400-rgb.py'
     checkpoint_file = 'https://download.openmmlab.com/mmaction/v1.0/recognition/tsn/tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb/tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb_20220906-2692d16c.pth'
     # Инициализация модели
     model = load_model(config_file, checkpoint_file)
@@ -30,7 +30,7 @@ def detect_aggressive_actions(video_path, result_path = './results'):
             f.write(f"{timestamp}: {label}\n")
 
 
-def load_model(config_file, checkpoint_file, device='cuda:0'):
+def load_model(config_file, checkpoint_file, device='cuda'):
     """ Инициализирует модель для распознавания действий. """
     model = init_recognizer(config_file, checkpoint_file, device=device)
     return model
