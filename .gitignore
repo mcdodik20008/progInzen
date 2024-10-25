@@ -2,3 +2,4 @@
 *.mp4
 /detecting/.venv/
 .venv/
+mmaction2/
