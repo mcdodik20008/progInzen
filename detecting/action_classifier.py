@@ -58,11 +58,10 @@ def filter_aggressive_actions(results):
             timestamp = i * 0.5  # Примерное вычисление временной метки (если кадры каждые 0.5 секунды)
             aggressive_actions.append((timestamp, label))
 
-    return aggressive_actions
+# Загружаем конфигурацию для модели SlowFast
+cfg = get_cfg()
+cfg_file = "detecting/SLOWFAST_8x8_R50.yaml"
+cfg = load_config(cfg, cfg_file)
 
-
-def print_results(results):
-    """ Печатает результаты агрессивных действий. """
-    print("Агрессивные действия (с временными метками):")
-    for timestamp, label in results:
-        print(f"{timestamp:.2f} секунд: {label}")
+# Запускаем задачу
+launch_job(cfg=cfg, init_method="tcp://localhost:9999")
