@@ -6,10 +6,10 @@ def change_video_resolution(input_video_path, output_video_path, width, height):
     cap = cv2.VideoCapture(input_video_path)
 
     # Получаем параметры входного видео
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Кодек для сохранения видео
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Кодек для сохранения видео
     fps = cap.get(cv2.CAP_PROP_FPS)  # Частота кадров
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
-
+    print("Начал рескалировать")
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -25,3 +25,4 @@ def change_video_resolution(input_video_path, output_video_path, width, height):
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+    print("Рескальнул")

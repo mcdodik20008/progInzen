@@ -1,25 +1,43 @@
-# https://rutube.ru/video/cbd82d6a3bf510fdc9b9a88aa740f9b3/
-# https://colab.research.google.com/github/open-mmlab/mmaction2/blob/master/demo/mmaction2_tutorial.ipynb#scrollTo=ZPwKGzqydnb20
-#  one of cpu, cuda, ipu, xpu, mkldnn, opengl, opencl, ideep, hip, ve, fpga, maia, xla, lazy, vulkan, mps, meta, hpu, mtia, privateuseone device type at start of device string: gpu
-import torch
 import action_classifier
-# import rutube_downloader
-# from video_rescaller import change_video_resolution
-# from dotenv import load_dotenv
-import os
+import rutube_downloader
+import dataset_manager
+import video_rescaller
+import fittser
 
-# load_dotenv()
-# log_vk = os.getenv('LOGIN_VK')
-# passwd_vk = os.getenv('PASSW_VK')
-# print(log_vk)
-# videoPath = rutube_downloader.download_rutube_video("https://rutube.ru/video/cbd82d6a3bf510fdc9b9a88aa740f9b3/")
+# region video
 
+# https://rutube.ru/video/58fc540b4e1b1b59fe3e401865c04768/
+# https://rutube.ru/video/b858a1dee8291420fa84076908fb3eaa/
+# https://rutube.ru/video/686124d7b3523f705d1b06148889cf84/
+video_url = "https://rutube.ru/video/686124d7b3523f705d1b06148889cf84/"
 
-input_video = './rutube_d/baza_video.mp4'
-output_video = './rescaled/baza_video.mp4'
-new_width = 224
-new_height = 224
+baza_name = "baza3.mp4"
+input_path = 'detecting/rutube_d/' + baza_name
+rescaled_path = 'detecting/rescaled/' + baza_name
+output_path = 'detecting/rescaled/' + baza_name
 
-#change_video_resolution(input_video, output_video, new_width, new_height)
-torch.backends.cuda.matmul.allow_tf32 = True
-action_classifier.detect_aggressive_actions('./detecting/rutube_d/baza_video.mp4')
+#rutube_downloader.download_rutube_video(video_url, input_path)
+
+new_width = 1024
+new_height = 1024
+
+#video_rescaller.change_video_resolution(input_path, rescaled_path, new_width, new_height)
+
+# endregion
+
+# region dataset
+
+dataset_path = "detecting/datasets/UFC-CRIME"
+dataset_loader = dataset_manager.DatasetManager(dataset_path)
+
+labels = dataset_loader.get_labels()
+
+# endregion
+
+model_weights = "yolo11n.pt"
+video_classifier_model =  "microsoft/xclip-base-patch32"  # https://huggingface.co/microsoft/xclip-base-patch32
+
+#fit_path = fittser.fit(dataset_loader, video_classifier_model)
+#print(fit_path)
+
+action_classifier.run(device = "cuda", video_classifier_model=video_classifier_model, source=input_path, output_path=output_path, labels=labels, weights=model_weights)

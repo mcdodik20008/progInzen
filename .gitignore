@@ -3,3 +3,4 @@
 /detecting/.venv/
 .venv/
 mmaction2/
+*.pt
