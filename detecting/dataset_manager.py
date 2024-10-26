@@ -2,6 +2,8 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+
+# https://www.kaggle.com/datasets/odins0n/ucf-crime-dataset?resource=download-directory
 class DatasetManager:
     def __init__(self, dataset_path):
         transform = transforms.Compose([

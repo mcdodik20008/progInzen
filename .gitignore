@@ -1,7 +1,7 @@
 *.env
 *.mp4
 /detecting/.venv/
-/detecting/datasets/
+/detecting/datasets/*
 .venv/
 mmaction2/
 *.pt
