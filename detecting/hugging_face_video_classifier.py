@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 import torch
-import torch.nn as nn
+from torchvision import transforms
 import numpy as np
 from transformers import AutoModel, AutoProcessor
 
@@ -36,7 +36,7 @@ class HuggingFaceVideoClassifier:
             model = model.half()
         self.model = model.eval()
 
-    def preprocess_crops_for_video_cls(self, crops: List[np.ndarray], input_size: list = None) -> torch.Tensor:
+    def preprocess_crops_for_video_cls(self, crops: List[np.ndarray], input_size: list = None) -> torch.Tensor | None:
         """
         Preprocess a list of crops for video classification.
 
@@ -49,7 +49,11 @@ class HuggingFaceVideoClassifier:
         """
         if input_size is None:
             input_size = [224, 224]
-        from torchvision import transforms
+
+        # Проверяем, что crops не пустой
+        if not crops:
+            print("Error: No crops provided for preprocessing!")
+            return None
 
         transform = transforms.Compose(
             [
@@ -61,10 +65,29 @@ class HuggingFaceVideoClassifier:
             ]
         )
 
-        processed_crops = [transform(torch.from_numpy(crop).permute(2, 0, 1)) for crop in crops]  # (T, C, H, W)
+        processed_crops = []
+        for crop in crops:
+            # Проверяем, что форма каждого crop корректная
+            if crop.ndim != 3 or crop.shape[2] != 3:
+                print(f"Invalid crop shape: {crop.shape}")
+                return None
+
+            tensor_crop = torch.from_numpy(crop).permute(2, 0, 1)  # (C, H, W)
+            transformed_crop = transform(tensor_crop)  # Применяем трансформации
+            processed_crops.append(transformed_crop)
+
+        # Логируем форму каждого обработанного crop
+        for idx, crop in enumerate(processed_crops):
+            print(f"Processed crop {idx} shape: {crop.shape}")  # Вывод формы
+
         output = torch.stack(processed_crops).unsqueeze(0).to(self.device)  # (1, T, C, H, W)
+        if output is None:
+            print("Error: Output is None after stacking processed crops!")
+            return None
+
         if self.fp16:
             output = output.half()
+
         return output
 
     def __call__(self, sequences: torch.Tensor) -> torch.Tensor:
@@ -113,7 +136,7 @@ class HuggingFaceVideoClassifier:
 
         return pred_labels, pred_confs
 
-    def prepare_to_fit(self, num_classes, device = "cuda"):
+    def prepare_to_fit(self):
             # Заморозка параметров модели, кроме последнего слоя
         for param in self.model.parameters():
             param.requires_grad = False

@@ -35,7 +35,8 @@ labels = dataset_loader.get_labels()
 # endregion
 
 model_weights = "yolo11n.pt"
-video_classifier_model =  "microsoft/xclip-base-patch32"  # https://huggingface.co/microsoft/xclip-base-patch32
+# https://huggingface.co/microsoft/xclip-base-patch32
+video_classifier_model =  "microsoft/xclip-base-patch32"
 
 #fit_path = fittser.fit(dataset_loader, video_classifier_model)
 #print(fit_path)
