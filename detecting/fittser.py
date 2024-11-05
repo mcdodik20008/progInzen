@@ -1,17 +1,15 @@
+import time
 import torch
+from typing import List
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from collections import defaultdict
-from typing import List, Optional
-import time
 
 from detecting import model_manager
 from detecting.UFCrimeDataset import UFCrimeDataset
 
 
 def fit(
-        weights: str = "yolo11n.pt",
         device: str = "cuda",
         num_epochs: int = 10,
         batch_size: int = 1,
@@ -63,14 +61,14 @@ def fit(
 
             # Прямой проход
             optimizer.zero_grad()
-            outputs = video_classifier.model(labels, inputs)
+            outputs = video_classifier.model(inputs_class, inputs)
             logits = outputs.logits_per_video
 
-            print("Logits shape:", logits.shape)
-            print("Labels shape:", inputs_class.shape)
+            print("Logits shape:", logits.shape)  # Ожидается [batch_size, num_classes]
+            print("Labels shape:", inputs_class.shape)  # Ожидается [batch_size]
 
             # Вычисление потерь и обратное распространение
-            loss = criterion(logits, labels)
+            loss = criterion(logits, inputs_class)
             loss.backward()
             optimizer.step()
 
