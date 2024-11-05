@@ -36,9 +36,11 @@ labels = dataset_loader.get_labels()
 
 model_weights = "yolo11n.pt"
 # https://huggingface.co/microsoft/xclip-base-patch32
-video_classifier_model =  "microsoft/xclip-base-patch32"
+# microsoft/xclip-base-patch16-kinetics-600-16-frames
+# microsoft/xclip-base-patch32
+video_classifier_model =  "microsoft/xclip-base-patch16-kinetics-600"
 
-#fit_path = fittser.fit(dataset_loader, video_classifier_model)
+fit_path = fittser.fit(num_epochs=1, video_classifier_model=video_classifier_model)
 #print(fit_path)
 
-action_classifier.run(device = "cuda", video_classifier_model=video_classifier_model, source=input_path, output_path=output_path, labels=labels, weights=model_weights)
+#action_classifier.run(device = "cuda", video_classifier_model=video_classifier_model, source=input_path, output_path=output_path, labels=labels, weights=model_weights)
