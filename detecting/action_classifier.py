@@ -12,7 +12,7 @@ from ultralytics.data.loaders import get_best_youtube_url
 from ultralytics.utils.plotting import Annotator
 from ultralytics.utils.torch_utils import select_device
 
-from detecting import model_manager
+import model_manager
 from hugging_face_video_classifier import HuggingFaceVideoClassifier
 from torch_vision_video_classifier import TorchVisionVideoClassifier
 

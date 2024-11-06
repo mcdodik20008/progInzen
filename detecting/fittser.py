@@ -5,8 +5,8 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from detecting import model_manager
-from detecting.UFCrimeDataset import UFCrimeDataset
+import model_manager
+from UFCrimeDataset import UFCrimeDataset
 
 
 def fit(

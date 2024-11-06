@@ -31,10 +31,23 @@ class HuggingFaceVideoClassifier:
         self.labels = labels
         self.device = select_device(device)
         self.processor = AutoProcessor.from_pretrained(model_name)
-        model = AutoModel.from_pretrained(model_name).to(self.device)
+        self.model = AutoModel.from_pretrained(model_name).to(self.device)
         if fp16:
-            model = model.half()
-        self.model = model.eval()
+            self.model = self.model.half()
+
+        # Заморозка всех параметров модели, кроме последнего слоя
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        # Получение числа выходных классов
+        num_classes = len(labels)  # Убедитесь, что labels содержит 14 классов
+        self.model.visual_projection = torch.nn.Linear(self.model.visual_projection.in_features, num_classes)
+
+        # Разморозка параметров последнего слоя
+        for param in self.model.visual_projection.parameters():
+            param.requires_grad = True  # Разморозить новый слой
+
+        self.model.eval()  # Переключаем модель в режим оценки
 
     def preprocess_crops_for_video_cls(self, crops: List[np.ndarray], input_size: list = None) -> torch.Tensor | None:
         """
