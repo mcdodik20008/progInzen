@@ -7,6 +7,9 @@ import os
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
+#https://huggingface.co/microsoft/xclip-base-patch16-kinetics-600
+#https://github.com/microsoft/VideoX/blob/40f6d177e0a057a50ac69ac1de6b5938fd268601/X-CLIP/datasets/build.py#L247
+
 # region video
 
 # https://rutube.ru/video/58fc540b4e1b1b59fe3e401865c04768/
