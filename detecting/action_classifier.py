@@ -13,8 +13,6 @@ from ultralytics.utils.plotting import Annotator
 from ultralytics.utils.torch_utils import select_device
 
 import model_manager
-from hugging_face_video_classifier import HuggingFaceVideoClassifier
-from torch_vision_video_classifier import TorchVisionVideoClassifier
 
 
 def crop_and_pad(frame, box, margin_percent):
@@ -81,7 +79,6 @@ def run(
             "cooking",
             "sitting",
         ]
-    # Initialize models and device
     device = select_device(device)
     yolo_model = YOLO(weights).to(device)
     video_classifier = model_manager.get_classify_model(video_classifier_model, labels, device, fp16)
@@ -119,9 +116,9 @@ def run(
 
         frame_counter += 1
 
-        # Run YOLO tracking
         results = yolo_model.track(frame, persist=True, classes=[0])  # Track only person class
 
+        # получили задетекшоные челубеки
         if results[0].boxes.id is not None:
             boxes = results[0].boxes.xyxy.cpu().numpy()
             track_ids = results[0].boxes.id.cpu().numpy()
@@ -129,18 +126,22 @@ def run(
             # Visualize prediction
             annotator = Annotator(frame, line_width=3, font_size=10, pil=False)
 
+            # сбрасываем каждый цикл то, что будем выводить
             if frame_counter % skip_frame == 0:
                 crops_to_infer = []
                 track_ids_to_infer = []
 
             for box, track_id in zip(boxes, track_ids):
+                # если цикл сброшен, то заполним историю сначала
                 if frame_counter % skip_frame == 0:
                     crop = crop_and_pad(frame, box, crop_margin_percentage)
                     track_history[track_id].append(crop)
 
+                # если мы накопили больше кадров, чем надо (8), то выкинем, что бы не переполнить
                 if len(track_history[track_id]) > num_video_sequence_samples:
                     track_history[track_id].pop(0)
 
+                # если накопили нужное количество кадров по выбранному объекту, то можно препроцессить кропс и ставить в очередь на классификацию
                 if len(track_history[track_id]) == num_video_sequence_samples and frame_counter % skip_frame == 0:
                     start_time = time.time()
                     crops = video_classifier.preprocess_crops_for_video_cls(track_history[track_id])
@@ -150,6 +151,7 @@ def run(
                     crops_to_infer.append(crops)
                     track_ids_to_infer.append(track_id)
 
+            #
             if crops_to_infer and (
                 not pred_labels
                 or frame_counter % int(num_video_sequence_samples * skip_frame * (1 - video_cls_overlap_ratio)) == 0
@@ -164,6 +166,7 @@ def run(
 
                 pred_labels, pred_confs = video_classifier.postprocess(output_batch)
 
+            # Рисует на фрейме
             if track_ids_to_infer and crops_to_infer:
                 for box, track_id, pred_label, pred_conf in zip(boxes, track_ids_to_infer, pred_labels, pred_confs):
                     top2_preds = sorted(zip(pred_label, pred_conf), key=lambda x: x[1], reverse=True)

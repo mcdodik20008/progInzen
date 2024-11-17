@@ -31,7 +31,18 @@ class DatasetManager:
                 "sitting",
             ]
 
-        return np.array(self.__dataset.classes).tolist()
+        val = np.array(self.__dataset.classes).tolist()
+        val = val + [
+                "walking",
+                "running",
+                "brushing teeth",
+                "looking into phone",
+                "weight lifting",
+                "cooking",
+                "sitting",
+            ]
+
+        return val
 
     def get_loader(self):
         return DataLoader(self.__dataset, batch_size=32, shuffle=True)

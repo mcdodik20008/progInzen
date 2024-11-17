@@ -35,21 +35,21 @@ class HuggingFaceVideoClassifier:
         if fp16:
             self.model = self.model.half()
 
-        # Заморозка всех параметров модели, кроме последнего слоя
-        for param in self.model.parameters():
-            param.requires_grad = False
-
-        # Получение числа выходных классов
-        num_classes = len(labels)  # Убедитесь, что labels содержит 14 классов
-        self.model.visual_projection = torch.nn.Linear(self.model.visual_projection.in_features, num_classes)
-
-        # Разморозка параметров последнего слоя
-        for param in self.model.visual_projection.parameters():
-            param.requires_grad = True  # Разморозить новый слой
+        # # Заморозка всех параметров модели, кроме последнего слоя
+        # for param in self.model.parameters():
+        #     param.requires_grad = False
+        #
+        # # Получение числа выходных классов
+        # num_classes = len(labels)  # Убедитесь, что labels содержит 14 классов
+        # self.model.visual_projection = torch.nn.Linear(self.model.visual_projection.in_features, num_classes)
+        #
+        # # Разморозка параметров последнего слоя
+        # for param in self.model.visual_projection.parameters():
+        #     param.requires_grad = True  # Разморозить новый слой
 
         self.model.eval()  # Переключаем модель в режим оценки
 
-    def preprocess_crops_for_video_cls(self, crops: List[np.ndarray], input_size: list = None) -> torch.Tensor | None:
+    def preprocess_crops_for_video_cls(self, crops: np.ndarray, input_size: list = None) -> torch.Tensor | None:
         """
         Preprocess a list of crops for video classification.
 

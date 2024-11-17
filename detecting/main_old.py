@@ -24,8 +24,8 @@ output_path = 'detecting/rescaled/' + baza_name
 
 #rutube_downloader.download_rutube_video(video_url, input_path)
 
-new_width = 1024
-new_height = 1024
+# new_width = 1024
+# new_height = 1024
 
 #video_rescaller.change_video_resolution(input_path, rescaled_path, new_width, new_height)
 
@@ -44,9 +44,9 @@ model_weights = "yolo11n.pt"
 # https://huggingface.co/microsoft/xclip-base-patch32
 # microsoft/xclip-base-patch16-kinetics-600-16-frames
 # microsoft/xclip-base-patch32
-video_classifier_model =  "microsoft/xclip-base-patch16-kinetics-600"
+video_classifier_model =  "microsoft/xclip-base-patch32"
 
-fit_path = fittser.fit(num_epochs=1, video_classifier_model=video_classifier_model, device="cpu")
+#fit_path = fittser.fit(num_epochs=1, video_classifier_model=video_classifier_model, device="cpu")
 #print(fit_path)
 
-#action_classifier.run(device = "cuda", video_classifier_model=video_classifier_model, source=input_path, output_path=output_path, labels=labels, weights=model_weights)
+action_classifier.run(device = "cuda", video_classifier_model=video_classifier_model, source=input_path, output_path=output_path, labels=labels, weights=model_weights)
