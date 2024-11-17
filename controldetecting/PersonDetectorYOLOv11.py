@@ -26,5 +26,4 @@ class PersonDetectorYOLOv11:
             boxes = outputs[0].boxes.xyxy.cpu().numpy()
             track_ids = outputs[0].boxes.id.cpu().numpy()
             return boxes, track_ids
-        print("NONE, NONE")
         return None, None

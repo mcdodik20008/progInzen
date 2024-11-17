@@ -22,10 +22,8 @@ class VideoAnalyzer:
         save_to_disk = output_path is not None and save_video
         cap = cv2.VideoCapture(video_path)
         frame_width, frame_height, fps = self.cap_processor.get_video_properties(cap)
-        target_frame_time = 1.0 / fps
-        print(fps)
+
         if save_to_disk:
-            print("будем выводить в " + output_path)
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
@@ -40,7 +38,6 @@ class VideoAnalyzer:
                 self.set_pause()
                 paused = False
 
-            start_time = time.time()
             success, frame = cap.read()
             if not success:
                 print("not success")
