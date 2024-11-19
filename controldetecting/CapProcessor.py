@@ -14,7 +14,8 @@ class CapProcessor:
 
     @staticmethod
     def get_video_properties(cap):
-        return int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)), cap.get(cv2.CAP_PROP_FPS)
+        return int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)), cap.get(
+            cv2.CAP_PROP_FPS)
 
     @staticmethod
     def crop_and_pad(frame, box, margin_percent=10):
@@ -65,8 +66,24 @@ class CapProcessor:
 
     @staticmethod
     def annotate_frame(frame, zipped_data):
+        label_colors = {
+            "calm pedestrian": (0, 255, 0),  # Зеленый
+            "social interaction": (0, 255, 0),
+            "street vendor": (0, 255, 0),
+            "public transportation user": (0, 255, 0),
+            "recreational activity": (0, 255, 0),
+            "physical altercation": (0, 0, 255), # Красный
+            "aggressive gestures": (0, 0, 255),
+            "property damage": (0, 0, 255),
+            "harassment": (0, 0, 255),
+            "loitering": (0, 255, 255),  # Желтый
+            "street performer": (0, 255, 255),
+            "protesting": (0, 255, 255)
+        }
         annotator = Annotator(frame, line_width=3, font_size=10, pil=False)
-        for box, track_id, pred_label, pred_conf in zipped_data:
+        for box, pred_label, pred_conf in zipped_data:
             top2_preds = sorted(zip(pred_label, pred_conf), key=lambda x: x[1], reverse=True)
             label_text = " | ".join([f"{label} ({conf:.2f})" for label, conf in top2_preds])
-            annotator.box_label(box, label_text, color=(0, 0, 255))
+
+            label, conf = top2_preds[0]
+            annotator.box_label(box, label_text, color=label_colors[label])

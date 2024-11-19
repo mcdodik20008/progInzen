@@ -5,7 +5,10 @@ from CapProcessor import CapProcessor
 from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
 from VideoBehaviorAnalyzer import VideoAnalyzer
 
-input_video = "rutube_d/baza3.mp4"
+# in_dir = "rutube_d/"
+in_dir = "onlinecams/"
+
+input_video = in_dir + "baza4.mp4"
 output_video = "results/output_video_with_behavior.mp4"
 
 detection_model_name = "microsoft/xclip-base-patch32"
