@@ -8,9 +8,9 @@ from ultralytics.utils.plotting import Annotator
 
 
 class CapProcessor:
-    def __init__(self, model_name, device):
+    def __init__(self, processor_name, device):
         self.device = device
-        self.processor = AutoProcessor.from_pretrained(model_name)
+        self.processor = AutoProcessor.from_pretrained(processor_name)
 
     @staticmethod
     def get_video_properties(cap):
@@ -18,7 +18,7 @@ class CapProcessor:
             cv2.CAP_PROP_FPS)
 
     @staticmethod
-    def crop_and_pad(frame, box, margin_percent=10):
+    def crop_and_pad(frame, box, resize = (224, 224), margin_percent=10):
         x1, y1, x2, y2 = map(int, box)
         w, h = x2 - x1, y2 - y1
 
@@ -36,7 +36,7 @@ class CapProcessor:
                       max(0, center_x - half_size): min(frame.shape[1], center_x + half_size),
                       ]
 
-        return cv2.resize(square_crop, (224, 224), interpolation=cv2.INTER_LINEAR)
+        return cv2.resize(square_crop, resize, interpolation=cv2.INTER_LINEAR)
 
     def preprocess_crops_for_video_cls(self, crops: np.ndarray, fp16=False,
                                        input_size: list = None) -> torch.Tensor | None:
@@ -81,9 +81,10 @@ class CapProcessor:
             "protesting": (0, 255, 255)
         }
         annotator = Annotator(frame, line_width=3, font_size=10, pil=False)
-        for box, pred_label, pred_conf in zipped_data:
+        for box, pred_label, pred_conf, class_num in zipped_data:
             top2_preds = sorted(zip(pred_label, pred_conf), key=lambda x: x[1], reverse=True)
             label_text = " | ".join([f"{label} ({conf:.2f})" for label, conf in top2_preds])
 
             label, conf = top2_preds[0]
+            label_text = label_text + f"class: {class_num}"
             annotator.box_label(box, label_text, color=label_colors[label])

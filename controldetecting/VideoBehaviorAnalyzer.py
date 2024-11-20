@@ -1,15 +1,17 @@
 import cv2
 
-from controldetecting.BehaviorClassifier import BehaviorClassifier
-from controldetecting.CapProcessor import CapProcessor
-from controldetecting.PersonDetectorYOLOv11 import PersonDetectorYOLOv11
+from BehaviorClassifier import BehaviorClassifier
+from CapProcessor import CapProcessor
+from CarAccidentClassifier import CarAccidentClassifier
+from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
 
 
 class VideoAnalyzer:
-    def __init__(self, detector: PersonDetectorYOLOv11, classifier: BehaviorClassifier, cap_processor: CapProcessor):
+    def __init__(self, detector: PersonDetectorYOLOv11, classifier: BehaviorClassifier, car_accident: CarAccidentClassifier, cap_processor: CapProcessor):
         self.detector = detector
         self.behavior_classifier = classifier
         self.cap_processor = cap_processor
+        self.car_accident = car_accident
 
     def analyze_video(self, video_path, output_path, save_video=False):
         out = None
@@ -21,9 +23,7 @@ class VideoAnalyzer:
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
-
         frame_counter = 0
-
         paused = False
         while cap.isOpened():
             if paused:
@@ -36,14 +36,17 @@ class VideoAnalyzer:
                 break
 
             frame_counter += 1
-
-            boxes, track_ids = self.detector(frame)
+            boxes, track_ids, classes = self.detector(frame)
             if track_ids is not None:
                 self.behavior_classifier.try_reset_to_infer(frame_counter)
-                for box, track_id in zip(boxes, track_ids):
-                    self.behavior_classifier.classify_behavior(box, track_id, frame, frame_counter)
+                for box, track_id, class_id in zip(boxes, track_ids, classes):
+                    if class_id == 0:
+                        print(f"class_id = {class_id}")
+                        self.behavior_classifier.invoke(frame, box, track_id, frame_counter)
+                    # if class_id == 2:
+                    #     self.car_accident(frame, box, class_id)
 
-                self.behavior_classifier.annotate_frame(boxes, frame)
+                self.behavior_classifier.annotate_frame(boxes, frame, classes)
 
             if save_to_disk:
                 out.write(frame)

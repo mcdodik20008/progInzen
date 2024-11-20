@@ -7,12 +7,12 @@ from controldetecting.CapProcessor import CapProcessor
 import time
 
 class BehaviorClassifier:
-    def __init__(self, cap_processor: CapProcessor, device, model_name="microsoft/xclip-base-patch32", ):
+    def __init__(self, cap_processor: CapProcessor, device, model_name, processor_name):
         self.device = device
         self.cap_processor = cap_processor
 
         self.model = AutoModel.from_pretrained(model_name).to(self.device)
-        self.processor = AutoProcessor.from_pretrained(model_name)
+        self.processor = AutoProcessor.from_pretrained(processor_name)
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
@@ -39,7 +39,7 @@ class BehaviorClassifier:
             self.crops_to_infer = []
             self.track_ids_to_infer = []
 
-    def classify_behavior(self, box, track_id, frame, frame_counter):
+    def invoke(self, frame, box, track_id, frame_counter):
         self.processed_box.append(box)
         track_by_id = self.track_history[track_id]
         frame_mod_skip = frame_counter % self.skip_frame
@@ -59,9 +59,9 @@ class BehaviorClassifier:
             print(f"video cls inference time: {inference_time:.4f} seconds")
             self.pred_labels, self.pred_confs = self.postprocess(output_batch)
 
-    def annotate_frame(self,boxes, frame):
+    def annotate_frame(self,boxes, frame, classes):
         if self.track_ids_to_infer and self.crops_to_infer:
-            zipped_data = zip(boxes, self.pred_labels, self.pred_confs)
+            zipped_data = zip(boxes, self.pred_labels, self.pred_confs, classes)
             self.cap_processor.annotate_frame(frame, zipped_data)
             self.processed_box.clear()
 

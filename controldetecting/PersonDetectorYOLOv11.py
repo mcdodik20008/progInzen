@@ -25,5 +25,6 @@ class PersonDetectorYOLOv11:
         if len(outputs) > 0 and outputs[0].boxes.id is not None:
             boxes = outputs[0].boxes.xyxy.cpu().numpy()
             track_ids = outputs[0].boxes.id.cpu().numpy()
-            return boxes, track_ids
-        return None, None
+            classes = outputs[0].boxes.cls.cpu().numpy()
+            return boxes, track_ids, classes
+        return None, None, None
