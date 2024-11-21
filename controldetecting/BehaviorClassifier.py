@@ -4,12 +4,15 @@ from typing import List, Tuple
 from torchvision import transforms
 from collections import defaultdict
 from controldetecting.CapProcessor import CapProcessor
+from FrameAnnotator import FrameAnnotator
+
 import time
 
 class BehaviorClassifier:
-    def __init__(self, cap_processor: CapProcessor, device, model_name, processor_name):
+    def __init__(self, cap_processor: CapProcessor, frame_annotator: FrameAnnotator, device, model_name, processor_name):
         self.device = device
         self.cap_processor = cap_processor
+        self.frame_annotator = frame_annotator
 
         self.model = AutoModel.from_pretrained(model_name).to(self.device)
         self.processor = AutoProcessor.from_pretrained(processor_name)
@@ -24,6 +27,20 @@ class BehaviorClassifier:
             "loitering", "street performer", "protesting"
                        ]
 
+        self.label_to_colors = {
+            "calm pedestrian": (0, 255, 0),  # Зеленый
+            "social interaction": (0, 255, 0),
+            "street vendor": (0, 255, 0),
+            "public transportation user": (0, 255, 0),
+            "recreational activity": (0, 255, 0),
+            "physical altercation": (0, 0, 255), # Красный
+            "aggressive gestures": (0, 0, 255),
+            "property damage": (0, 0, 255),
+            "harassment": (0, 0, 255),
+            "loitering": (0, 255, 255),  # Желтый
+            "street performer": (0, 255, 255),
+            "protesting": (0, 255, 255),
+        }
 
         self.track_history = defaultdict(list)
         self.track_ids_to_infer, self.crops_to_infer = [], []
@@ -39,7 +56,7 @@ class BehaviorClassifier:
             self.crops_to_infer = []
             self.track_ids_to_infer = []
 
-    def invoke(self, frame, box, track_id, frame_counter):
+    def __call__(self, frame, box, track_id, frame_counter):
         self.processed_box.append(box)
         track_by_id = self.track_history[track_id]
         frame_mod_skip = frame_counter % self.skip_frame
@@ -53,7 +70,7 @@ class BehaviorClassifier:
         if self.can_classify_behavior(self.crops_to_infer, frame_counter, self.pred_labels, self.skip_frame):
             crops_batch = torch.cat(self.crops_to_infer, dim=0)
             start_inference_time = time.time()
-            output_batch = self(crops_batch)
+            output_batch = self.predict(crops_batch)
             end_inference_time = time.time()
             inference_time = end_inference_time - start_inference_time
             print(f"video cls inference time: {inference_time:.4f} seconds")
@@ -62,10 +79,10 @@ class BehaviorClassifier:
     def annotate_frame(self,boxes, frame, classes):
         if self.track_ids_to_infer and self.crops_to_infer:
             zipped_data = zip(boxes, self.pred_labels, self.pred_confs, classes)
-            self.cap_processor.annotate_frame(frame, zipped_data)
+            self.frame_annotator(frame, zipped_data, self.label_to_colors)
             self.processed_box.clear()
 
-    def __call__(self, sequences: torch.Tensor) -> torch.Tensor:
+    def predict(self, sequences: torch.Tensor) -> torch.Tensor:
         input_ids = self.processor(text=self.labels, return_tensors="pt", padding=True)["input_ids"].to(self.device)
         inputs = {"pixel_values": sequences, "input_ids": input_ids}
         with torch.inference_mode():
@@ -76,8 +93,8 @@ class BehaviorClassifier:
         pred_labels = []
         pred_confs = []
         with torch.no_grad():
-            logits_per_video = outputs  # Assuming outputs is already the logits tensor
-            probs = logits_per_video.softmax(dim=-1)  # Use softmax to convert logits to probabilities
+            logits_per_video = outputs
+            probs = logits_per_video.softmax(dim=-1)
         for prob in probs:
             top2_indices = prob.topk(2).indices.tolist()
             top2_labels = [self.labels[idx] for idx in top2_indices]

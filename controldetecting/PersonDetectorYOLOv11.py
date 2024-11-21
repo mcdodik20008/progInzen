@@ -16,11 +16,8 @@ class PersonDetectorYOLOv11:
         ])
 
     def __call__(self, frame):
-        """
-        Метод для детекции людей в кадре.
-        """
         with torch.no_grad():
-            outputs = self.model.track(frame, persist=True, classes=[0])
+            outputs = self.model.track(frame, persist=True, classes=[0, 2])
 
         if len(outputs) > 0 and outputs[0].boxes.id is not None:
             boxes = outputs[0].boxes.xyxy.cpu().numpy()

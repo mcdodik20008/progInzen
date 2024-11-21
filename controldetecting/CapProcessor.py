@@ -65,26 +65,12 @@ class CapProcessor:
         return output
 
     @staticmethod
-    def annotate_frame(frame, zipped_data):
-        label_colors = {
-            "calm pedestrian": (0, 255, 0),  # Зеленый
-            "social interaction": (0, 255, 0),
-            "street vendor": (0, 255, 0),
-            "public transportation user": (0, 255, 0),
-            "recreational activity": (0, 255, 0),
-            "physical altercation": (0, 0, 255), # Красный
-            "aggressive gestures": (0, 0, 255),
-            "property damage": (0, 0, 255),
-            "harassment": (0, 0, 255),
-            "loitering": (0, 255, 255),  # Желтый
-            "street performer": (0, 255, 255),
-            "protesting": (0, 255, 255)
-        }
-        annotator = Annotator(frame, line_width=3, font_size=10, pil=False)
-        for box, pred_label, pred_conf, class_num in zipped_data:
-            top2_preds = sorted(zip(pred_label, pred_conf), key=lambda x: x[1], reverse=True)
-            label_text = " | ".join([f"{label} ({conf:.2f})" for label, conf in top2_preds])
+    def resize_frame(cap, frame):
+        target_width = 1024
 
-            label, conf = top2_preds[0]
-            label_text = label_text + f"class: {class_num}"
-            annotator.box_label(box, label_text, color=label_colors[label])
+        original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        aspect_ratio = original_width / original_height
+        target_height = int(target_width / aspect_ratio)
+
+        return cv2.resize(frame, (target_width, target_height), interpolation=cv2.INTER_AREA)
