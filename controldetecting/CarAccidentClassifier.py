@@ -3,4 +3,4 @@ class CarAccidentClassifier:
         pass
 
     def __call__(self, frame, box, class_num):
-        print(f"ТЫ ЖЕ НЕ МАШИНА!! class: {class_num}")
+        pass

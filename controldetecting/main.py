@@ -1,10 +1,9 @@
-from ultralytics import YOLO
 from ultralytics.utils.torch_utils import select_device
 
 from BehaviorClassifier import BehaviorClassifier
 from CapProcessor import CapProcessor
 from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
-from VideoBehaviorAnalyzer import VideoAnalyzer
+from VideoAnalyzer import VideoAnalyzer
 from controldetecting.CarAccidentClassifier import CarAccidentClassifier
 from controldetecting.FrameAnnotator import FrameAnnotator
 

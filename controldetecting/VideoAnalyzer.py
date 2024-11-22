@@ -49,7 +49,7 @@ class VideoAnalyzer:
                         self.behavior_classifier(frame, box, track_id, frame_counter)
                         human_boxes.append(box)
                         human_classes.append(class_id)
-                    if class_id == 2:
+                    elif class_id == 2:
                         self.car_accident(frame, box, class_id)
 
             zipped_data = zip(human_boxes, self.behavior_classifier.pred_labels, self.behavior_classifier.pred_confs, human_classes)
@@ -57,7 +57,7 @@ class VideoAnalyzer:
 
             if save_to_disk:
                 out.write(frame)
-            cv2.imshow("YOLOv8 Tracking with S3D Classification", frame)
+            cv2.imshow("Ща покажем кто тут злой", frame)
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord(" "):

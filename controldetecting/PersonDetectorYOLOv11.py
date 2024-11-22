@@ -1,6 +1,6 @@
 import torch
 from torchvision import transforms
-from ultralytics import YOLO  # Предполагается, что используется библиотека YOLOv5 или YOLOv8 с PyTorch
+from ultralytics import YOLO
 
 
 class PersonDetectorYOLOv11:
