@@ -47,7 +47,7 @@ class BehaviorClassifier:
         self.pred_labels, self.pred_confs = [], []
         self.num_video_sequence_samples = 8
         self.video_cls_overlap_ratio: float = 0.25
-        self.skip_frame = 2
+        self.skip_frame = 3
 
         self.processed_box = []
 

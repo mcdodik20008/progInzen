@@ -40,7 +40,7 @@ class VideoAnalyzer:
 
             frame_counter += 1
             boxes, track_ids, classes = self.detector(frame)
-            human_boxes = []
+            human_boxes, car_boxes = [], []
             human_classes = []
             if track_ids is not None:
                 self.behavior_classifier.try_reset_to_infer(frame_counter)
@@ -51,10 +51,11 @@ class VideoAnalyzer:
                         human_classes.append(class_id)
                     elif class_id == 2:
                         self.car_accident(frame, box, class_id)
+                        car_boxes.append(box)
 
             zipped_data = zip(human_boxes, self.behavior_classifier.pred_labels, self.behavior_classifier.pred_confs, human_classes)
             self.frame_annotator(frame, zipped_data, self.behavior_classifier.label_to_colors)
-
+            self.frame_annotator.annotate_frame_one_box_by_text(car_boxes, "car")
             if save_to_disk:
                 out.write(frame)
             cv2.imshow("Ща покажем кто тут злой", frame)

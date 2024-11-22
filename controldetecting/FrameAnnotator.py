@@ -15,3 +15,7 @@ class FrameAnnotator:
         label_text = "|".join([f"{label} ({conf:.2f})" if conf > 0.3 else "" for label, conf in top2_preds])
         label, conf = top2_preds[0]
         self.annotator.box_label(box, label_text, color=label_to_colors[label])
+
+    def annotate_frame_one_box_by_text(self, boxes, text, color=(255, 0, 0)):
+        for box in boxes:
+            self.annotator.box_label(box, text, color=color)
