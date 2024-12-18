@@ -10,7 +10,7 @@ from controldetecting.FrameAnnotator import FrameAnnotator
 in_dir = "rutube_d/"
 #in_dir = "onlinecams/"
 
-input_video = in_dir + "baza2.mp4"
+input_video = in_dir + "baza4.mp4"
 # input_video = 0
 
 output_video = "results/output_video_with_behavior.mp4"
