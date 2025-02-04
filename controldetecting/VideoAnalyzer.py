@@ -1,6 +1,6 @@
 import cv2
 
-from BehaviorClassifier import BehaviorClassifier
+from controldetecting.analyzer.BehaviorClassifier import BehaviorClassifier
 from CapProcessor import CapProcessor
 from CarAccidentClassifier import CarAccidentClassifier
 from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
@@ -33,15 +33,17 @@ class VideoAnalyzer:
                 paused = False
 
             success, frame = cap.read()
-            frame = self.cap_processor.resize_frame(cap, frame)
             if not success:
                 print("not success")
                 break
 
-            frame_counter += 1
-            boxes, track_ids, classes = self.detector(frame)
+
             human_boxes, car_boxes = [], []
             human_classes = []
+
+            frame_counter += 1
+            frame = self.cap_processor.resize_frame(cap, frame)
+            boxes, track_ids, classes = self.detector(frame)
             if track_ids is not None:
                 self.behavior_classifier.try_reset_to_infer(frame_counter)
                 for box, track_id, class_id in zip(boxes, track_ids, classes):
