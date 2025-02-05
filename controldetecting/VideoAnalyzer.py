@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 from CapProcessor import CapProcessor
 from CarAccidentClassifier import CarAccidentClassifier
@@ -39,11 +40,13 @@ class VideoAnalyzer:
                 print("not success")
                 break
 
+
             human_boxes, car_boxes = [], []
             human_classes = []
 
             frame_counter += 1
             frame = self.cap_processor.resize_frame(cap, frame)
+            frame1 = frame.copy()
             boxes, track_ids, classes = self.detector(frame)
             if track_ids is not None:
                 self.behavior_classifier.try_reset_to_predict(frame_counter)
@@ -58,13 +61,15 @@ class VideoAnalyzer:
 
             human_data = self.behavior_classifier.get_data_for_annotate()
             self.frame_annotator(frame, human_boxes, human_data)
+            self.frame_annotator(frame1, human_boxes, human_data)
 
             car_data = AnnotateData.get_template(len(car_boxes), "car", "blue")
             self.frame_annotator(frame, car_boxes, car_data)
 
+            combined_frame = cv2.vconcat([frame, frame1])
             if save_to_disk:
-                out.write(frame)
-            cv2.imshow("Angry Birds", frame)
+                out.write(combined_frame)
+            cv2.imshow("Angry Birds", combined_frame)
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord(" "):
