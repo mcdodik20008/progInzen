@@ -12,7 +12,7 @@ class CapProcessor:
         self.processor = AutoProcessor.from_pretrained(processor_name)
 
     def __call__(self, crops: np.ndarray, fp16=False,
-                                       input_size: list = None) -> torch.Tensor | None:
+                 input_size: list = None) -> torch.Tensor | None:
         if input_size is None:
             input_size = [224, 224]
 
@@ -43,7 +43,7 @@ class CapProcessor:
             cv2.CAP_PROP_FPS)
 
     @staticmethod
-    def crop_and_pad(frame, box, resize = (224, 224), margin_percent=10):
+    def crop_and_pad(frame, box, resize=(224, 224), margin_percent=10):
         x1, y1, x2, y2 = map(int, box)
         w, h = x2 - x1, y2 - y1
 

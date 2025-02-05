@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Входные токены и их вектора (предположим, что мы используем 2D-вектора)
 tokens = ["A", "black", "cat"]

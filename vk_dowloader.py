@@ -1,9 +1,10 @@
-import vk_api
-import requests
 import os
 
-def download_vk_video(login, password, video_id, save_directory = './vk_d'):
+import requests
+import vk_api
 
+
+def download_vk_video(login, password, video_id, save_directory='./vk_d'):
     vk_session = vk_api.VkApi(login, password)
     vk = vk_session.get_api()
 

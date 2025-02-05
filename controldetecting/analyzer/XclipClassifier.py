@@ -1,13 +1,13 @@
-import torch
-from transformers import AutoModel, AutoProcessor
-from typing import List, Tuple
-from torchvision import transforms
+import time
 from collections import defaultdict
+from typing import List, Tuple
+
+import torch
+from torchvision import transforms
+from transformers import AutoModel, AutoProcessor
+
 from controldetecting.CapProcessor import CapProcessor
 from controldetecting.FrameAnnotator import FrameAnnotator
-
-import time
-
 from controldetecting.analyzer.Classifier import Classifier
 from controldetecting.model.AnnotateData import AnnotateData
 
@@ -33,7 +33,9 @@ class XclipClassifier(Classifier):
         skip_frame (int): Количество кадров для пропуска.
         processed_box (List): Список обработанных боксов.
     """
-    def __init__(self, cap_processor: CapProcessor, frame_annotator: FrameAnnotator, device, model_name, processor_name):
+
+    def __init__(self, cap_processor: CapProcessor, frame_annotator: FrameAnnotator, device, model_name,
+                 processor_name):
         self.device = device
         self.cap_processor = cap_processor
         self.frame_annotator = frame_annotator
@@ -46,7 +48,8 @@ class XclipClassifier(Classifier):
         ])
 
         self.labels = [
-            "calm pedestrian", "social interaction", "street vendor", "public transportation user", "recreational activity",
+            "calm pedestrian", "social interaction", "street vendor", "public transportation user",
+            "recreational activity",
             "physical altercation", "aggressive gestures", "property damage", "harassment",
             "loitering", "street performer", "protesting"
         ]
@@ -86,7 +89,7 @@ class XclipClassifier(Classifier):
             track_id (int): Идентификатор трека.
             frame_counter (int): Счетчик кадров.
         """
-        #self.try_reset_to_infer(frame_counter)
+        # self.try_reset_to_infer(frame_counter)
 
         self.processed_box.append(box)
         track_by_id = self.track_history[track_id]
@@ -177,7 +180,7 @@ class XclipClassifier(Classifier):
 
         # если мы накопили больше кадров, чем надо (8), то выкинем, что бы не переполнить
         if len(track_by_id) > self.num_video_sequence_samples:
-        # если накопили нужное количество кадров по выбранному объекту, то можно препроцессить кропс и ставить в очередь на классификацию
+            # если накопили нужное количество кадров по выбранному объекту, то можно препроцессить кропс и ставить в очередь на классификацию
             track_by_id.pop(0)
         return len(track_by_id) == self.num_video_sequence_samples and frame_mod_skip == 0
 

@@ -1,13 +1,13 @@
 from ultralytics.utils.torch_utils import select_device
 
-from controldetecting.analyzer.XclipClassifier import XclipClassifier
 from CapProcessor import CapProcessor
 from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
-from controldetecting.VideoAnalyzer import VideoAnalyzer
 from controldetecting.CarAccidentClassifier import CarAccidentClassifier
 from controldetecting.FrameAnnotator import FrameAnnotator
+from controldetecting.VideoAnalyzer import VideoAnalyzer
+from controldetecting.analyzer.XclipClassifier import XclipClassifier
 
-#in_dir = "rutube_d/"
+# in_dir = "rutube_d/"
 in_dir = "onlinecams/"
 
 input_video = in_dir + "baza4.mp4"

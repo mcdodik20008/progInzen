@@ -11,4 +11,3 @@ class FrameAnnotator:
         self.annotator = Annotator(frame, line_width=2, font_size=10, pil=False)
         for (box, (text, color)) in zip(boxes, data):
             self.annotator.box_label(box, text, color=color)
-

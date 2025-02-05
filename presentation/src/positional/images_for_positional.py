@@ -1,6 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 tokens = ["A", "black", "cat"]
 embedding_vectors = np.array([[0.2, 0.5], [0.1, 0.6], [0.4, 0.9]])  # Векторы встраивания
@@ -32,6 +33,7 @@ def save_image(frame):
     fig.savefig(image_path)
     plt.close(fig)
     return image_path
+
 
 image_paths = [save_image(i) for i in range(len(tokens))]
 image_paths
