@@ -4,5 +4,13 @@ from abc import abstractmethod, ABC
 class Classifier(ABC):
 
     @abstractmethod
-    def analyze_video(self, video_path, output_path, save_video=False):
+    def __call__(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def try_reset_to_predict(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def get_data_for_annotate(self, *args, **kwargs):
         pass

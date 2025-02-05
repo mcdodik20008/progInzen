@@ -8,7 +8,11 @@ from controldetecting.FrameAnnotator import FrameAnnotator
 
 import time
 
-class BehaviorClassifier:
+from controldetecting.analyzer.Classifier import Classifier
+from controldetecting.model.AnnotateData import AnnotateData
+
+
+class XclipClassifier(Classifier):
     """
     Атрибуты:
         cap_processor (CapProcessor): Обработчик для подготовки кадров.
@@ -45,26 +49,26 @@ class BehaviorClassifier:
             "calm pedestrian", "social interaction", "street vendor", "public transportation user", "recreational activity",
             "physical altercation", "aggressive gestures", "property damage", "harassment",
             "loitering", "street performer", "protesting"
-                       ]
+        ]
 
-        self.label_to_colors = {
-            "calm pedestrian": (0, 255, 0),  # Зеленый
-            "social interaction": (0, 255, 0),
-            "street vendor": (0, 255, 0),
-            "public transportation user": (0, 255, 0),
-            "recreational activity": (0, 255, 0),
-            "physical altercation": (0, 0, 255), # Красный
-            "aggressive gestures": (0, 0, 255),
-            "property damage": (0, 0, 255),
-            "harassment": (0, 0, 255),
-            "loitering": (0, 255, 255),  # Желтый
-            "street performer": (0, 255, 255),
-            "protesting": (0, 255, 255),
+        self.label_to_color_name = {
+            "calm pedestrian": "green",
+            "social interaction": "green",
+            "street vendor": "green",
+            "public transportation user": "green",
+            "recreational activity": "green",
+            "physical altercation": "red",
+            "aggressive gestures": "red",
+            "property damage": "red",
+            "harassment": "red",
+            "loitering": "yellow",
+            "street performer": "yellow",
+            "protesting": "yellow",
         }
 
         # Инициализация истории треков и других вспомогательных структур
         self.track_history = defaultdict(list)
-        self.track_ids_to_infer, self.crops_to_infer = [], []
+        self.crops_to_predict = []
         self.pred_labels, self.pred_confs = [], []
         self.num_video_sequence_samples = 8
         self.video_cls_overlap_ratio: float = 0.25
@@ -82,28 +86,27 @@ class BehaviorClassifier:
             track_id (int): Идентификатор трека.
             frame_counter (int): Счетчик кадров.
         """
-        self.try_reset_to_infer(frame_counter)
+        #self.try_reset_to_infer(frame_counter)
 
         self.processed_box.append(box)
         track_by_id = self.track_history[track_id]
         frame_mod_skip = frame_counter % self.skip_frame
 
-        can_add = self.can_add_track_and_crop_to_infer(box, frame, frame_mod_skip, track_by_id)
+        can_add = self.__can_add_track_and_crop_to_infer(box, frame, frame_mod_skip, track_by_id)
         if can_add:
-            corps = self.process_frame(track_by_id)
-            self.crops_to_infer.append(corps)
-            self.track_ids_to_infer.append(track_id)
+            corps = self.__process_frame(track_by_id)
+            self.crops_to_predict.append(corps)
 
-        if self.can_classify_behavior(self.crops_to_infer, frame_counter, self.pred_labels, self.skip_frame):
-            crops_batch = torch.cat(self.crops_to_infer, dim=0)
+        if self.__can_classify_behavior(self.crops_to_predict, frame_counter, self.pred_labels, self.skip_frame):
+            crops_batch = torch.cat(self.crops_to_predict, dim=0)
             start_inference_time = time.time()
-            output_batch = self.predict(crops_batch)
+            output_batch = self.__predict(crops_batch)
             end_inference_time = time.time()
             inference_time = end_inference_time - start_inference_time
             print(f"video cls inference time: {inference_time:.4f} seconds")
-            self.pred_labels, self.pred_confs = self.postprocess(output_batch)
+            self.pred_labels, self.pred_confs = self.__postprocess(output_batch)
 
-    def try_reset_to_infer(self, frame_counter):
+    def try_reset_to_predict(self, frame_counter):
         """
         Сбрасывает списки кропов и идентификаторов треков для классификации, если текущий кадр соответствует условию пропуска.
 
@@ -111,10 +114,12 @@ class BehaviorClassifier:
             frame_counter (int): Счетчик кадров.
         """
         if frame_counter % self.skip_frame == 0:
-            self.crops_to_infer = []
-            self.track_ids_to_infer = []
+            self.crops_to_predict = []
 
-    def predict(self, sequences: torch.Tensor) -> torch.Tensor:
+    def get_data_for_annotate(self, *args, **kwargs) -> AnnotateData:
+        return AnnotateData(self.pred_labels, self.pred_confs, self.label_to_color_name)
+
+    def __predict(self, sequences: torch.Tensor) -> torch.Tensor:
         """
         Выполняет предсказание на основе входных данных.
 
@@ -130,7 +135,7 @@ class BehaviorClassifier:
             outputs = self.model(**inputs)
         return outputs.logits_per_video
 
-    def postprocess(self, outputs: torch.Tensor) -> Tuple[List[List[str]], List[List[float]]]:
+    def __postprocess(self, outputs: torch.Tensor) -> Tuple[List[List[str]], List[List[float]]]:
         """
         Обрабатывает выходные данные модели для получения меток и доверительных значений.
 
@@ -153,7 +158,7 @@ class BehaviorClassifier:
             pred_confs.append(top2_confs)
         return pred_labels, pred_confs
 
-    def can_add_track_and_crop_to_infer(self, box, frame, frame_mod_skip, track_by_id):
+    def __can_add_track_and_crop_to_infer(self, box, frame, frame_mod_skip, track_by_id):
         """
         Проверяет, можно ли добавить трек и кроп для классификации.
 
@@ -176,7 +181,7 @@ class BehaviorClassifier:
             track_by_id.pop(0)
         return len(track_by_id) == self.num_video_sequence_samples and frame_mod_skip == 0
 
-    def can_classify_behavior(self, crops_to_infer, frame_counter, pred_labels, skip_frame):
+    def __can_classify_behavior(self, crops_to_infer, frame_counter, pred_labels, skip_frame):
         """
         Проверяет, можно ли классифицировать поведение.
 
@@ -194,7 +199,7 @@ class BehaviorClassifier:
                 or frame_counter % int(
             self.num_video_sequence_samples * skip_frame * (1 - self.video_cls_overlap_ratio)) == 0)
 
-    def process_frame(self, track_by_id):
+    def __process_frame(self, track_by_id):
         """
         Обрабатывает кадр для классификации видео.
 

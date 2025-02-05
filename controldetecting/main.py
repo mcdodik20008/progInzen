@@ -1,14 +1,14 @@
 from ultralytics.utils.torch_utils import select_device
 
-from controldetecting.analyzer.BehaviorClassifier import BehaviorClassifier
+from controldetecting.analyzer.XclipClassifier import XclipClassifier
 from CapProcessor import CapProcessor
 from PersonDetectorYOLOv11 import PersonDetectorYOLOv11
 from controldetecting.VideoAnalyzer import VideoAnalyzer
 from controldetecting.CarAccidentClassifier import CarAccidentClassifier
 from controldetecting.FrameAnnotator import FrameAnnotator
 
-in_dir = "rutube_d/"
-#in_dir = "onlinecams/"
+#in_dir = "rutube_d/"
+in_dir = "onlinecams/"
 
 input_video = in_dir + "baza4.mp4"
 # input_video = 0
@@ -27,7 +27,7 @@ device = select_device("cuda")
 detector = PersonDetectorYOLOv11("yolo11x.pt", device)
 cap_processor = CapProcessor(processor_name, device)
 frame_annotator = FrameAnnotator()
-classifier = BehaviorClassifier(cap_processor, frame_annotator, device, detection_model_name, processor_name)
+classifier = XclipClassifier(cap_processor, frame_annotator, device, detection_model_name, processor_name)
 car_accident = CarAccidentClassifier()
 analyzer = VideoAnalyzer(detector, classifier, car_accident, cap_processor, frame_annotator)
 
