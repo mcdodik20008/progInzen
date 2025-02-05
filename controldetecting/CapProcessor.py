@@ -4,13 +4,38 @@ import torch
 from torchvision import transforms
 
 from transformers import AutoProcessor
-from ultralytics.utils.plotting import Annotator
 
 
 class CapProcessor:
     def __init__(self, processor_name, device):
         self.device = device
         self.processor = AutoProcessor.from_pretrained(processor_name)
+
+    def __call__(self, crops: np.ndarray, fp16=False,
+                                       input_size: list = None) -> torch.Tensor | None:
+        if input_size is None:
+            input_size = [224, 224]
+
+        transform = transforms.Compose(
+            [
+                transforms.Lambda(lambda x: x.float() / 255.0),
+                transforms.Resize(input_size),
+                transforms.Normalize(
+                    mean=self.processor.image_processor.image_mean, std=self.processor.image_processor.image_std
+                ),
+            ]
+        )
+
+        processed_crops = []
+        for crop in crops:
+            tensor_crop = torch.from_numpy(crop).permute(2, 0, 1)  # (C, H, W)
+            transformed_crop = transform(tensor_crop)  # Применяем трансформации
+            processed_crops.append(transformed_crop)
+        output = torch.stack(processed_crops).unsqueeze(0).to(self.device)  # (1, T, C, H, W)
+        if fp16:
+            output = output.half()
+
+        return output
 
     @staticmethod
     def get_video_properties(cap):
@@ -37,32 +62,6 @@ class CapProcessor:
                       ]
 
         return cv2.resize(square_crop, resize, interpolation=cv2.INTER_LINEAR)
-
-    def preprocess_crops_for_video_cls(self, crops: np.ndarray, fp16=False,
-                                       input_size: list = None) -> torch.Tensor | None:
-        if input_size is None:
-            input_size = [224, 224]
-
-        transform = transforms.Compose(
-            [
-                transforms.Lambda(lambda x: x.float() / 255.0),
-                transforms.Resize(input_size),
-                transforms.Normalize(
-                    mean=self.processor.image_processor.image_mean, std=self.processor.image_processor.image_std
-                ),
-            ]
-        )
-
-        processed_crops = []
-        for crop in crops:
-            tensor_crop = torch.from_numpy(crop).permute(2, 0, 1)  # (C, H, W)
-            transformed_crop = transform(tensor_crop)  # Применяем трансформации
-            processed_crops.append(transformed_crop)
-        output = torch.stack(processed_crops).unsqueeze(0).to(self.device)  # (1, T, C, H, W)
-        if fp16:
-            output = output.half()
-
-        return output
 
     @staticmethod
     def resize_frame(cap, frame):

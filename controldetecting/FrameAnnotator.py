@@ -5,7 +5,7 @@ class FrameAnnotator:
     def __init__(self):
         self.annotator = None
 
-    def __call__(self, frame, zipped_data, label_to_colors):
+    def annotate_frame(self, frame, zipped_data, label_to_colors):
         self.annotator = Annotator(frame, line_width=2, font_size=10, pil=False)
         for box, pred_label, pred_conf, class_num in zipped_data:
             self.annotate_frame_one_box(box, pred_label, pred_conf, class_num, label_to_colors)
@@ -19,3 +19,6 @@ class FrameAnnotator:
     def annotate_frame_one_box_by_text(self, boxes, text, color=(255, 0, 0)):
         for box in boxes:
             self.annotator.box_label(box, text, color=color)
+
+    def __call__(self, box, text, color):
+        pass

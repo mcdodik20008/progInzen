@@ -72,17 +72,6 @@ class BehaviorClassifier:
 
         self.processed_box = []
 
-    def try_reset_to_infer(self, frame_counter):
-        """
-        Сбрасывает списки кропов и идентификаторов треков для классификации, если текущий кадр соответствует условию пропуска.
-
-        Параметры:
-            frame_counter (int): Счетчик кадров.
-        """
-        if frame_counter % self.skip_frame == 0:
-            self.crops_to_infer = []
-            self.track_ids_to_infer = []
-
     def __call__(self, frame, box, track_id, frame_counter):
         """
         Обрабатывает кадр для классификации поведения.
@@ -93,6 +82,8 @@ class BehaviorClassifier:
             track_id (int): Идентификатор трека.
             frame_counter (int): Счетчик кадров.
         """
+        self.try_reset_to_infer(frame_counter)
+
         self.processed_box.append(box)
         track_by_id = self.track_history[track_id]
         frame_mod_skip = frame_counter % self.skip_frame
@@ -112,19 +103,16 @@ class BehaviorClassifier:
             print(f"video cls inference time: {inference_time:.4f} seconds")
             self.pred_labels, self.pred_confs = self.postprocess(output_batch)
 
-    def annotate_frame(self, boxes, frame, classes):
+    def try_reset_to_infer(self, frame_counter):
         """
-        Аннотирует кадр с предсказанными метками.
+        Сбрасывает списки кропов и идентификаторов треков для классификации, если текущий кадр соответствует условию пропуска.
 
         Параметры:
-            boxes (List[Tuple[int, int, int, int]]): Список боксов.
-            frame (np.ndarray): Текущий кадр.
-            classes (List[int]): Список классов.
+            frame_counter (int): Счетчик кадров.
         """
-        if self.track_ids_to_infer and self.crops_to_infer:
-            zipped_data = zip(boxes, self.pred_labels, self.pred_confs, classes)
-            self.frame_annotator(frame, zipped_data, self.label_to_colors)
-            self.processed_box.clear()
+        if frame_counter % self.skip_frame == 0:
+            self.crops_to_infer = []
+            self.track_ids_to_infer = []
 
     def predict(self, sequences: torch.Tensor) -> torch.Tensor:
         """
@@ -216,9 +204,4 @@ class BehaviorClassifier:
         Возвращает:
             torch.Tensor: Обработанные кропы.
         """
-        start_time = time.time()
-        crops = self.cap_processor.preprocess_crops_for_video_cls(track_by_id)
-        end_time = time.time()
-        preprocess_time = end_time - start_time
-        print(f"video cls preprocess time: {preprocess_time:.4f} seconds")
-        return crops
+        return self.cap_processor(track_by_id)

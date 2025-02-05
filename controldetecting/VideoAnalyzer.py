@@ -45,9 +45,10 @@ class VideoAnalyzer:
             frame = self.cap_processor.resize_frame(cap, frame)
             boxes, track_ids, classes = self.detector(frame)
             if track_ids is not None:
-                self.behavior_classifier.try_reset_to_infer(frame_counter)
+                #self.behavior_classifier.try_reset_to_infer(frame_counter)
                 for box, track_id, class_id in zip(boxes, track_ids, classes):
                     if class_id == 0:
+                        # ToDo: надау тестить - не очевидно
                         self.behavior_classifier(frame, box, track_id, frame_counter)
                         human_boxes.append(box)
                         human_classes.append(class_id)
@@ -56,7 +57,7 @@ class VideoAnalyzer:
                         # car_boxes.append(box)
 
             zipped_data = zip(human_boxes, self.behavior_classifier.pred_labels, self.behavior_classifier.pred_confs, human_classes)
-            self.frame_annotator(frame, zipped_data, self.behavior_classifier.label_to_colors)
+            self.frame_annotator.annotate_frame(frame, zipped_data, self.behavior_classifier.label_to_colors)
             self.frame_annotator.annotate_frame_one_box_by_text(car_boxes, "car")
             if save_to_disk:
                 out.write(frame)
