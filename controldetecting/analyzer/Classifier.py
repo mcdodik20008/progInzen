@@ -14,3 +14,7 @@ class Classifier(ABC):
     @abstractmethod
     def get_data_for_annotate(self, *args, **kwargs):
         pass
+
+    @abstractmethod
+    def get_class_id(self, *args, **kwargs):
+        pass

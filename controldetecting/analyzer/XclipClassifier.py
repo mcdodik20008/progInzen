@@ -122,6 +122,9 @@ class XclipClassifier(Classifier):
     def get_data_for_annotate(self, *args, **kwargs) -> AnnotateData:
         return AnnotateData(self.pred_labels, self.pred_confs, self.label_to_color_name)
 
+    def get_class_id(self, *args, **kwargs):
+        return 0
+
     def __predict(self, sequences: torch.Tensor) -> torch.Tensor:
         """
         Выполняет предсказание на основе входных данных.

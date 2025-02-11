@@ -65,11 +65,14 @@ class CapProcessor:
 
     @staticmethod
     def resize_frame(cap, frame):
-        target_width = 1024
+        return cv2.resize(frame, CapProcessor.get_new_frame_size(cap), interpolation=cv2.INTER_AREA)
 
+    @staticmethod
+    def get_new_frame_size(cap):
         original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         aspect_ratio = original_width / original_height
-        target_height = int(target_width / aspect_ratio)
 
-        return cv2.resize(frame, (target_width, target_height), interpolation=cv2.INTER_AREA)
+        target_width = 1024
+        target_height = int(target_width / aspect_ratio)
+        return target_width, target_height

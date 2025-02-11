@@ -29,7 +29,7 @@ cap_processor = CapProcessor(processor_name, device)
 frame_annotator = FrameAnnotator()
 classifier = XclipClassifier(cap_processor, frame_annotator, device, detection_model_name, processor_name)
 car_accident = CarAccidentClassifier()
-analyzer = VideoAnalyzer(detector, classifier, car_accident, cap_processor, frame_annotator)
+analyzer = VideoAnalyzer(detector, cap_processor, frame_annotator, classifier, car_accident)
 
 analyzer.analyze_video(input_video, output_video, False)
 

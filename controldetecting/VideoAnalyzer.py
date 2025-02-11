@@ -10,8 +10,8 @@ from controldetecting.model.AnnotateData import AnnotateData
 
 
 class VideoAnalyzer:
-    def __init__(self, detector: PersonDetectorYOLOv11, classifier: Classifier, car_accident: CarAccidentClassifier,
-                 cap_processor: CapProcessor, frame_annotator: FrameAnnotator):
+    def __init__(self, detector: PersonDetectorYOLOv11, cap_processor: CapProcessor, frame_annotator: FrameAnnotator,
+                 classifier: Classifier, car_accident: CarAccidentClassifier):
         self.detector = detector
         self.behavior_classifier = classifier
         self.cap_processor = cap_processor
@@ -39,7 +39,7 @@ class VideoAnalyzer:
             if not success:
                 print("not success")
                 break
-
+            cap_width, cap_height = CapProcessor.get_new_frame_size(cap)
 
             human_boxes, car_boxes = [], []
             human_classes = []
@@ -47,11 +47,16 @@ class VideoAnalyzer:
             frame_counter += 1
             frame = self.cap_processor.resize_frame(cap, frame)
             frame1 = frame.copy()
+
             boxes, track_ids, classes = self.detector(frame)
+            boxes = np.vstack((boxes, [0, 0, cap_width, cap_height]))
+            track_ids = np.append(track_ids, -1)
+            classes = np.append(classes, 0)
+
             if track_ids is not None:
                 self.behavior_classifier.try_reset_to_predict(frame_counter)
                 for box, track_id, class_id in zip(boxes, track_ids, classes):
-                    if class_id == 0:
+                    if class_id == self.behavior_classifier.get_class_id():
                         self.behavior_classifier(frame, box, track_id, frame_counter)
                         human_boxes.append(box)
                         human_classes.append(class_id)
