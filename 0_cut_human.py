@@ -14,10 +14,12 @@ def main():
         processor=FrameProcessor()
     )
 
-    # controller.run()
-    stream = SeekableVideoFileSource(VIDEO_PATH, start_time_sec=30)
-    analyzer = LiveAnalyzer(stream)
-    analyzer.run()
+    controller.run()
+
+    # Предсказание
+    # stream = SeekableVideoFileSource(VIDEO_PATH, start_time_sec=30)
+    # analyzer = LiveAnalyzer(stream)
+    # analyzer.run()
 
 if __name__ == "__main__":
     main()

@@ -12,7 +12,7 @@ LABEL_MAP = {0: "aggressive", 1: "suspicious", 2: "normal"}
 class BehaviorClassifier:
     def __init__(
             self,
-            model_path: str = "models/v1/model.pth",
+            model_path: str = "ready_models/v1/model.pth",
             num_frames: int = 16,
             frame_size: tuple = (224, 224),
             device: str = None

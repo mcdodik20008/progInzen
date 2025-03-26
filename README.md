@@ -33,7 +33,7 @@ pip install -r requirements.txt
 📽 Запускай обработку видео:
 
 ```bash
-python main.py
+python 0_cut_human.py
 ```
 
 💡 Модель будет сохранять клипы из фрагментов, где обнаружены люди. Все клипы делятся по `track_id`.

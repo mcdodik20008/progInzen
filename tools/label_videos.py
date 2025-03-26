@@ -1,4 +1,6 @@
+from pathlib import Path
 import json
+from typing import List
 
 import cv2
 import os
@@ -7,12 +9,19 @@ import shutil
 from glob import glob
 import datetime
 
-FRAMES_DIR = "../clips/frames"
-BOOLSHIT_DIR = "../clips_boolshit"
-LABELED_DIR = "../clips_labeled"
+from inference.behavior_classifier import BehaviorClassifier
 
-BOOLSHIT_LOG = "log_boolshit.csv"
-LABELS_LOG = "log_clips.csv"
+
+# === НАСТРОЙКИ ПУТЕЙ НА ОСНОВЕ РАСПОЛОЖЕНИЯ ЭТОГО ФАЙЛА ===
+BASE_DIR = Path(__file__).resolve().parent.parent  # <- /tools/.. => корень проекта
+
+FRAMES_DIR = BASE_DIR / "clips" / "frames"
+BOOLSHIT_DIR = BASE_DIR / "clips_boolshit"
+LABELED_DIR = BASE_DIR / "clips_labeled"
+
+BOOLSHIT_LOG = BASE_DIR / "log_boolshit.csv"
+LABELS_LOG = BASE_DIR / "log_clips.csv"
+
 LABELS = {
     ord("a"): "aggressive",
     ord("s"): "suspicious",
@@ -22,11 +31,26 @@ ENTER_KEY = 13
 QUIT_KEY = ord("q")
 
 
-def label_frame_folders():
+def find_clip_folders(root_dir: str) -> List[str]:
+    """
+    Возвращает список путей к папкам, содержащим ровно 16 изображений .jpg
+    """
+    clip_folders = []
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        jpgs = [f for f in filenames if f.lower().endswith(".jpg")]
+        if len(jpgs) == 16:
+            clip_folders.append(dirpath)
+    return clip_folders
+
+
+def label_frame_folders(behavior_classifier = None):
     frame_folders = sorted([
         f for f in os.listdir(FRAMES_DIR)
         if os.path.isdir(os.path.join(FRAMES_DIR, f))
     ])
+
+    if (len(frame_folders) == len(find_clip_folders(FRAMES_DIR))):
+        return
 
     if os.path.exists(LABELS_LOG):
         with open(LABELS_LOG, "r") as f:
@@ -61,6 +85,10 @@ def label_frame_folders():
 
             idx = 0
             selected_label = None
+
+            if behavior_classifier is not None:
+                predicted_label, _ = behavior_classifier.predict_from_folder(folder)
+                selected_label = predicted_label
 
             while True:
                 frame = cv2.imread(frame_paths[idx])
@@ -124,4 +152,5 @@ def label_frame_folders():
 
 
 if __name__ == "__main__":
-    label_frame_folders()
+    classifier = BehaviorClassifier()
+    label_frame_folders(classifier)
