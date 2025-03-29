@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant Notebook
+participant DatasetLoader
+participant ViViTModel
+participant Trainer
+participant Evaluator
+participant GoogleDrive
+
+User -> Notebook : запускает ноутбук
+Notebook -> GoogleDrive : монтирует диск
+Notebook -> DatasetLoader : находит последний vN.npz
+DatasetLoader -> GoogleDrive : загружает vN.npz
+DatasetLoader -> Notebook : возвращает X, y
+
+Notebook -> ViViTModel : инициализация модели
+Notebook -> Trainer : запускает обучение
+
+loop по эпохам
+    Trainer -> ViViTModel : forward()
+    Trainer -> ViViTModel : loss.backward()
+    Trainer -> ViViTModel : optimizer.step()
+end
+
+Trainer -> Evaluator : передаёт обученную модель
+Evaluator -> ViViTModel : forward()
+Evaluator -> Notebook : метрики (accuracy, precision, recall, f1)
+
+Notebook -> GoogleDrive : сохраняет model.pth
+Notebook -> GoogleDrive : сохраняет report.md
+
+User <- Notebook : отображает результаты
+@enduml

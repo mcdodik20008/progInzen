@@ -1,0 +1,8 @@
+@startuml
+participant "BehaviorClassifier" as Classifier
+participant "ViViTModel" as ViViT
+
+Classifier -> ViViT: forward(frames)
+ViViT --> Classifier: logits
+Classifier -> Classifier: softmax + выбор класса
+@enduml

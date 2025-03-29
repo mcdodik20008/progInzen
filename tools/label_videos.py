@@ -49,9 +49,6 @@ def label_frame_folders(behavior_classifier = None):
         if os.path.isdir(os.path.join(FRAMES_DIR, f))
     ])
 
-    if (len(frame_folders) == len(find_clip_folders(FRAMES_DIR))):
-        return
-
     if os.path.exists(LABELS_LOG):
         with open(LABELS_LOG, "r") as f:
             labeled = {row[0] for row in csv.reader(f)}
@@ -150,7 +147,18 @@ def label_frame_folders(behavior_classifier = None):
 
             cv2.destroyAllWindows()
 
+def get_ui_meta():
+    return {
+        "id": "label_videos",
+        "name": "🏷️ Ручная разметка",
+        "description": "UI-интерфейс для покадровой разметки поведения.",
+        "order": 3,
+        "parameters": {}
+    }
+
+def main():
+    #classifier = BehaviorClassifier()
+    label_frame_folders()
 
 if __name__ == "__main__":
-    classifier = BehaviorClassifier()
-    label_frame_folders(classifier)
+    main()

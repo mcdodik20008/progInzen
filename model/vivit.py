@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import math
 
 
 class PatchEmbed(nn.Module):
@@ -66,16 +65,16 @@ class ViViT(nn.Module):
         nn.init.constant_(self.head.bias, 0)
 
     def forward(self, x):
-        # x: [B, T, H, W, C] → [B, C, T, H, W]
-        x = x.permute(0, 4, 1, 2, 3)
-        x = self.patch_embed(x)  # [B, N, D]
+        # x: [B, T, H, W, C]
+        x = x.permute(0, 4, 1, 2, 3)         # [B, C, T, H, W]
+        x = self.patch_embed(x)              # [B, N, D]
 
         B, N, D = x.shape
         cls_tokens = self.cls_token.expand(B, -1, -1)  # [B, 1, D]
-        x = torch.cat((cls_tokens, x), dim=1)  # [B, N+1, D]
-        x = x + self.pos_embed[:, :N+1, :]
+        x = torch.cat((cls_tokens, x), dim=1)          # [B, N+1, D]
+        x = x + self.pos_embed[:, :N + 1, :]
         x = self.dropout(x)
 
         x = self.transformer(x)  # [B, N+1, D]
-        cls_output = x[:, 0]  # [B, D]
+        cls_output = x[:, 0]    # [B, D]
         return self.head(cls_output)  # [B, num_classes]

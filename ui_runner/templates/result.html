@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <title>Результат</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Результат запуска блока: <code>{{ block_id }}</code></h2>
+        <p>{{ result }}</p>
+
+        <h3>Параметры запуска:</h3>
+        <ul>
+        {% for k, v in args.items() %}
+            <li><b>{{ k }}</b>: {{ v }}</li>
+        {% endfor %}
+        </ul>
+
+        <br><a href="/" class="back-link">← Вернуться</a>
+    </div>
+</body>
+</html>

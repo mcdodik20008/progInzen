@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <title>BehaviorClassifier UI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 BehaviorClassifier — Панель управления</h1>
+        <ul class="block-list">
+            {% for block in blocks %}
+            <li class="block-item">
+                <a class="block-link" href="/block/{{ block.id }}"><b>{{ block.name }}</b></a><br>
+                <small>{{ block.description }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

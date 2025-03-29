@@ -1,0 +1,8 @@
+@startuml
+actor User
+participant "sync_with_colab.py" as Sync
+
+User -> Sync: запускает sync(only_download)
+Sync -> Sync: upload_dataset()
+Sync -> Sync: download_results()
+@enduml

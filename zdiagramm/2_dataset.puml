@@ -1,0 +1,9 @@
+@startuml
+actor User
+participant "convert_dataset.py" as Converter
+
+User -> Converter: запускает скрипт main()
+Converter -> Converter: считывает размеченные клипы
+Converter -> Converter: преобразует в формат numpy
+Converter -> Converter: сохраняет .npz
+@enduml

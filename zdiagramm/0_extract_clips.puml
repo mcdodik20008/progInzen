@@ -1,0 +1,18 @@
+@startuml
+actor User
+participant "0_cut_human.py" as CutHuman
+participant "AppController" as controller
+participant "YOLODetector" as YOLO
+participant "TrackClipBuffer" as Buffer
+participant "ClipSaver" as Saver
+
+User -> CutHuman: запускает main()
+CutHuman -> controller: run()
+controller -> YOLO: detect(frame)
+YOLO --> controller: bounding_boxes
+controller -> Buffer: update(bounding_boxes)
+Buffer --> controller: clip_ready?
+alt если clip готов
+    controller -> Saver: save_frames(clip)
+end
+@enduml

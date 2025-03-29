@@ -18,7 +18,7 @@ DATASETS_FOLDER_ID = '1fELxRYgDr0rXHfxFAfSRCZYk1lSdL9i2'
 # ID папки на Google Диске для хранения моделей
 MODELS_FOLDER_ID = '1sZEC1gBB1Xhj5HIQQk4z_LGQmvKbj2PI'
 # Ссылка на Colab-ноутбук
-COLAB_NOTEBOOK_URL = 'https://colab.research.google.com/drive/1ulKwTdbEa8ASsh0exagl0fcYBqL1uq7n?authuser=1'
+COLAB_NOTEBOOK_URL = 'https://colab.research.google.com/drive/1ulKwTdbEa8ASsh0exagl0fcYBqL1uq7n'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 
@@ -74,6 +74,16 @@ def download_from_gdrive(service, file_id, dest_path):
             status, done = downloader.next_chunk()
             print(f"Download {int(status.progress() * 100)}%.")
 
+def get_ui_meta():
+    return {
+        "id": "sync_colab",
+        "name": "☁️ Синхронизация с Google Colab",
+        "description": "Загрузка датасета на Google Drive и выгрузка модели обратно.",
+        "order": 4,
+        "parameters": {
+            "only_download": {"type": "bool", "default": "False"},
+        }
+    }
 
 # Основная функция
 def main(only_download: bool = False):
@@ -90,7 +100,7 @@ def main(only_download: bool = False):
         print(f"[🌍] Датасет загружен на Google Диск: https://drive.google.com/file/d/{dataset_id}/view?usp=sharing")
 
         # Инструкция по запуску Colab
-        print("\n=== 🚀 Откройте этот Colab-ноутбук для обучения модели ===")
+        print("\n=== Откройте этот Colab-ноутбук для обучения модели ===")
         print(f"{COLAB_NOTEBOOK_URL}")
         print(
             "\nПосле завершения обучения, убедитесь, что файлы модели и отчёта сохранены в соответствующей папке на Google Диске.")
@@ -125,6 +135,5 @@ def main(only_download: bool = False):
         download_from_gdrive(service, file_id, dest_path)
         print(f"[⬇️] Файл {file_name} загружен в {dest_path}")
 
-
 if __name__ == "__main__":
-    main(True)
+    main()

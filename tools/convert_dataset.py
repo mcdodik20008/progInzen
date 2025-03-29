@@ -77,6 +77,21 @@ def convert_dataset():
     np.savez_compressed(output_file, X=X, y=y)
     print(f"[→] Датасет сохранён в: {output_file}")
 
+def get_ui_meta():
+    return {
+        "id": "convert_dataset",
+        "name": "📦 Конвертация датасета",
+        "description": "Создаёт .npz файл из размеченных фреймов.",
+        "order": 2,
+        "parameters": {
+            "CLIPS_ROOT": {"type": "str", "default": "../clips_labeled"},
+            "OUTPUT_FILE": {"type": "str", "default": "../datasets/v1.npz"},
+            "NUM_FRAMES": {"type": "int", "default": 16}
+        }
+    }
+
+def main():
+    convert_dataset()
 
 if __name__ == "__main__":
-    convert_dataset()
+    main()

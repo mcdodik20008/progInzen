@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="RU">
+<head>
+    <title>{{ block.name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>{{ block.name }}</h2>
+        <p>{{ block.description }}</p>
+
+        <form action="/run/{{ block.id }}" method="post">
+            {% for key, param in block.parameters.items() %}
+            <div class="form-field">
+                <label><b>{{ key }}</b> ({{ param.type }}):</label><br>
+                <input name="{{ key }}" value="{{ param.default }}" class="input-field"/>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn">🚀 Запустить</button>
+        </form>
+
+        <br><a href="/" class="back-link">← Назад</a>
+    </div>
+</body>
+</html>

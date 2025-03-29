@@ -63,3 +63,6 @@ class BehaviorClassifier:
         print(f"   ▸ Время инференса: {elapsed:.3f} сек\n")
 
         return LABEL_MAP[class_id], probs_dict
+
+if __name__ == "__main__":
+    BehaviorClassifier()

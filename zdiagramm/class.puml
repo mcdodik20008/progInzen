@@ -1,0 +1,80 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' === Главные компоненты ===
+class "0_cut_human" {
+    + extract_humans_from_video()
+    + save_clip()
+    + main()
+}
+
+package core {
+    class "clip_saver" {
+        + ClipSaver
+        + save_frames()
+        + clear_old_tracks()
+    }
+
+    class "track_clip_buffer" {
+        + TrackClipBuffer
+        + update()
+        + get_clip()
+        + reset()
+    }
+
+    class "yolo_detector" {
+        + YOLODetector
+        + detect()
+        + load_model()
+    }
+
+    class "controller"{
+        + run()
+    }
+
+}
+
+package inference {
+    class "classifier" {
+        + __init__()
+        + __call__()
+    }
+}
+
+package tools {
+    class "label_frames" {
+        - label_frame_folders()
+        - find_clip_folders()
+        + main()
+    }
+
+    class "convert_dataset" {
+        + convert_dataset()
+        - read_clip_from_frames()
+        - get_next_version_number()
+    }
+
+    class "sync_with_colab" {
+        + download_from_gdrive()
+        + upload_to_gdrive()
+        + main()
+    }
+}
+
+package model {
+    class "vivit" {
+        + ViViTModel
+        + forward()
+        + load_weights()
+    }
+}
+
+' === Пример связей (по логике использования) ===
+"controller" --> "clip_saver"
+"controller" --> "track_clip_buffer"
+"controller" --> "yolo_detector"
+"0_cut_human" --> "controller"
+"label_frames" --> "classifier"
+"classifier" -> "vivit"
+
+@enduml

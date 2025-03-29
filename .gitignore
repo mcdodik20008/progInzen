@@ -3,5 +3,11 @@
 /detecting/.venv/
 /detecting/datasets/*
 .venv/
+./.venv-dataset
 mmaction2/
 *.pt
+./clips
+./clips_boolshit
+./clips_labeled
+./ready_datasets
+./ready_model
