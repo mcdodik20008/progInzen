@@ -1,0 +1,26 @@
+@startuml
+title BehaviorClassifier System Architecture
+
+actor Operator
+
+node "Video Source" as VideoSource
+node "Object Detector\n(YOLO)" as YOLO
+node "Tracker" as Tracker
+node "TrackClipBuffer" as ClipBuffer
+node "BehaviorClassifier\n(ViViT)" as Classifier
+node "Alert Service\n(Spring Boot REST API)" as AlertService
+database "Metadata Storage" as Metadata
+database "Labeled Clips" as ClipsDB
+
+VideoSource --> YOLO : video frames
+YOLO --> Tracker : detected humans (bounding boxes + confidence)
+Tracker --> ClipBuffer : track_id + frame crops
+ClipBuffer --> Metadata : save metadata.json
+ClipBuffer --> Classifier : buffered 16 frames
+Classifier --> AlertService : alerts (REST API request)
+Classifier --> ClipsDB : save classified clips
+
+Operator --> ClipsDB : manual labeling
+Operator --> Metadata : log labeling (CSV)
+
+@enduml

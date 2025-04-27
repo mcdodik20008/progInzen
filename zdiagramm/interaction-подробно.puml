@@ -1,0 +1,38 @@
+@startuml
+title Detailed System Architecture - BehaviorClassifier
+
+actor Operator
+
+node "Video Source" as VideoSource
+node "YOLO Detector\n(0_cut_human.py)" as YOLO
+node "Tracker\n(track_id via YOLO persist)" as Tracker
+node "TrackClipBuffer\n(0_cut_human.py)" as ClipBuffer
+database "Metadata Storage\n(metadata.json)" as Metadata
+database "Frame Storage\n(clips/frames/)" as FrameDB
+database "Labeled Clips\n(clips_labeled/)" as LabeledDB
+database "Logs\n(labeled_clips.csv)" as Logs
+node "Manual Labeling UI\n(tools/label_frames.py)" as LabelUI
+node "BehaviorClassifier (ViViT)\n(model/vivit.py)" as Classifier
+node "Inference Pipeline\n(inference/predictor.py)" as Predictor
+node "Alert Service\n(Spring Boot REST API)" as AlertService
+node "Data Sync\n(tools/sync_with_colab.py)" as DataSync
+
+VideoSource --> YOLO : video frames
+YOLO --> Tracker : detected humans (bbox + confidence)
+Tracker --> ClipBuffer : frame crops + track_id
+ClipBuffer --> FrameDB : save frames (per track_id)
+ClipBuffer --> Metadata : save metadata.json
+
+Operator --> LabelUI : manual labeling actions
+LabelUI --> LabeledDB : save labeled clips
+LabelUI --> Logs : update labeled_clips.csv
+
+FrameDB --> Predictor : load 16 frames
+Predictor --> Classifier : predict behavior (ViViT)
+Classifier --> AlertService : send alert (JSON over REST)
+
+DataSync --> FrameDB : upload/download frames
+DataSync --> LabeledDB : upload/download labeled clips
+DataSync --> Logs : sync logs
+
+@enduml
