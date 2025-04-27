@@ -1,0 +1,34 @@
+@startuml
+title ViViT Architecture Overview
+
+start
+
+:Input video clip (B × T × H × W × C);
+
+:Permute dimensions [B, C, T, H, W];
+
+:Patch Embedding (3D Conv);
+note right
+Tubelet size: (2, 16, 16)
+Output: B × N × D
+end note
+
+:Add Class Token;
+
+:Add Positional Embeddings;
+
+:Dropout Layer;
+
+:Transformer Encoder Stack;
+note right
+8 layers, 8 heads attention
+end note
+
+:Extract CLS Token;
+
+:Linear Classification Head;
+
+:Output class probabilities (Aggressive / Normal);
+
+stop
+@enduml

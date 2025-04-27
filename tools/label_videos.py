@@ -11,16 +11,14 @@ import datetime
 
 from inference.behavior_classifier import BehaviorClassifier
 
-
-# === НАСТРОЙКИ ПУТЕЙ НА ОСНОВЕ РАСПОЛОЖЕНИЯ ЭТОГО ФАЙЛА ===
-BASE_DIR = Path(__file__).resolve().parent.parent  # <- /tools/.. => корень проекта
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 FRAMES_DIR = BASE_DIR / "clips" / "frames"
 BOOLSHIT_DIR = BASE_DIR / "clips_boolshit"
 LABELED_DIR = BASE_DIR / "clips_labeled"
 
-BOOLSHIT_LOG = BASE_DIR / "log_boolshit.csv"
-LABELS_LOG = BASE_DIR / "log_clips.csv"
+BOOLSHIT_LOG = BASE_DIR / "logs" / "log_boolshit.csv"
+LABELS_LOG = BASE_DIR / "logs" / "log_clips.csv"
 
 LABELS = {
     ord("a"): "aggressive",
@@ -100,7 +98,7 @@ def label_frame_folders(behavior_classifier = None):
                     f"label: {selected_label or 'not selected'}",
                     f"frame: {idx + 1} / {len(frame_paths)}",
                     "",
-                    "[a/s/n] - mark, [b] - delete",
+                    "[a/n] - mark, [b] - delete",
                     "[o/p] - prev/next",
                     "[Enter] - save, [q] - exit"
                 ]

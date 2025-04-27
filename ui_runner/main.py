@@ -34,8 +34,10 @@ def recursive_find_blocks_from_dirs(dirs: List[str]):
                             meta["__path"] = path
                             meta["order"] = meta.get("order", 999)
                             blocks.append(meta)
+                            loaded_blocks[meta.get("id")] = module
                     except Exception as e:
                         print(f"[⚠️] Не удалось загрузить {path}: {e}")
+
     return sorted(blocks, key=lambda m: m["order"])
 
 
